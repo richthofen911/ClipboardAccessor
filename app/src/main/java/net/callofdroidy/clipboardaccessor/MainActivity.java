@@ -1,5 +1,8 @@
 package net.callofdroidy.clipboardaccessor;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +13,7 @@ import android.webkit.WebHistoryItem;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -30,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private RadioButton rb_ADB;
     private RadioButton rb_Internet;
     private TextView tv_IPInfo;
-    private static final int SERVER_PORT = 6000;
+    private static final int SERVER_PORT = 8000;
+    private MiniServerApp myServerForClipboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,20 +50,18 @@ public class MainActivity extends AppCompatActivity {
         rg_transWay.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                Log.e("checked changed", "checked id " + checkedId);
-                Log.e("rb_internet id", rb_Internet.getId() + "");
-                if (checkedId == rb_Internet.getId()) {
-                    tv_IPInfo.setText("This device's IP: " + Formatter.formatIpAddress(((WifiManager) getSystemService(WIFI_SERVICE)).getConnectionInfo().getIpAddress()) + ":6000");
+                if (checkedId == rb_Internet.getId())
                     startHTTPServer();
-                }
             }
         });
     }
 
     private void startHTTPServer(){
         try{
-            new MiniServerApp();
-            Log.e("server is running", "PORT: 6000");
+            myServerForClipboard = new MiniServerApp();
+            Log.e("server started", "running on PORT: " + SERVER_PORT);
+            tv_IPInfo.setText("This device's IP: " + Formatter.formatIpAddress(((WifiManager) getSystemService(WIFI_SERVICE)).getConnectionInfo().getIpAddress()) + ":" + SERVER_PORT
+                    + "\n" + getResources().getString(R.string.connect));
         }catch (IOException e){
             Log.e("failed to start server", e.toString());
         }
@@ -72,15 +75,26 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Response serve(IHTTPSession session){
-            Log.e("session info", session.getQueryParameterString());
             String respContent = "did get any text";
             Map<String, String> params = session.getParms();
             String recvContent = params.get("text");
             if(recvContent != null){
-                Log.e("receive text", recvContent);
-                respContent = "successfully get content " + recvContent;
-            }
+                Log.e("get text", recvContent);
+                // need to use a handler
+                //((ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("label::textForClipboard", recvContent));
+                Log.e("set clipboard", recvContent);
+                respContent = "Text has been copied on the Clipboard on your phone";
+                //Toast.makeText(getApplicationContext(), "Text has been copied on Clipboard now", Toast.LENGTH_SHORT).show();
+            }//else
+                //Toast.makeText(getApplicationContext(), "Didn't get your text", Toast.LENGTH_SHORT).show();
             return new Response(Response.Status.OK, MIME_PLAINTEXT, respContent);
         }
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        if(myServerForClipboard != null)
+            myServerForClipboard.stop();
     }
 }

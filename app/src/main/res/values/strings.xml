@@ -1,13 +1,16 @@
 <resources>
     <string name="app_name">ClipboardAccessor</string>
-    <string name="what_is_this">What is this:\n\n
+    <string name="what_is_this">What is this:\n
         \tThis app helps you quickly retrieve plain text from your computer
         to the phone\'s clipboard so that you can easily paste it into any app you want. For example,
         if you want to send a website link you found from your desktop browser through a phone app to
         your friend, this is a quick way to do it.\n\n</string>
-    <string name="how_to_use">How to use it:\n\n
+    <string name="how_to_use">How to use it:\n
         \tadb shell am startservice -n callofdroidy.net.clipboardaccessor/.ServiceClipboardAccessor -e
         setText \"content you want to put into your android clipboard\" \n\n
         \tThe service would stop itself as long as it sets content to the phone\'s clipboard, so
         don\'t worry about an \"keep running service\"</string>
+
+    <string name="connect">Put this IP in your browser with text as the parameter like this:\n
+        YOUR_IP/?text=HelloWorld</string>
 </resources>

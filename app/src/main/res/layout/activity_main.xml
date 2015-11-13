@@ -38,9 +38,18 @@
             android:text="Through Internet"/>
     </RadioGroup>
 
-    <TextView
-        android:id="@+id/tv_IPInfo"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"/>
+        android:gravity="center_horizontal"
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/tv_IPInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="8dp" />
+    </LinearLayout>
+
 </LinearLayout>
