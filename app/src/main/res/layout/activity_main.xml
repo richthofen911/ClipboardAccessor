@@ -19,4 +19,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/how_to_use"/>
+
+    <RadioGroup
+        android:id="@+id/rg_transWay"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RadioButton
+            android:id="@+id/rb_adb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Through ADB"/>
+        <RadioButton
+            android:id="@+id/rb_internet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Through Internet"/>
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tv_IPInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"/>
 </LinearLayout>

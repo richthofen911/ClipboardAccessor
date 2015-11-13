@@ -19,7 +19,7 @@ public class ServiceClipboardAccessor extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-        ((ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("label::textFromOutside", intent.getStringExtra("text")));
+        ((ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("label::textFromOutside", intent.getStringExtra("setText")));
         stopSelf();
         return START_NOT_STICKY;
     }

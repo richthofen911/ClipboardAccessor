@@ -7,7 +7,7 @@
         your friend, this is a quick way to do it.\n\n</string>
     <string name="how_to_use">How to use it:\n\n
         \tadb shell am startservice -n callofdroidy.net.clipboardaccessor/.ServiceClipboardAccessor -e
-        text \"content you want to put into your android clipboard\" \n\n
-        \tThe service would stop itself
-        as long as it sets content to the phone\'s clipboard, so don\'t worry about an \"keep running service\"</string>
+        setText \"content you want to put into your android clipboard\" \n\n
+        \tThe service would stop itself as long as it sets content to the phone\'s clipboard, so
+        don\'t worry about an \"keep running service\"</string>
 </resources>
