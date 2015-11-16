@@ -1,16 +1,14 @@
 <resources>
     <string name="app_name">ClipboardAccessor</string>
     <string name="what_is_this">What is this:\n
-        \tThis app helps you quickly retrieve plain text from your computer
-        to the phone\'s clipboard so that you can easily paste it into any app you want. For example,
-        if you want to send a website link you found from your desktop browser through a phone app to
-        your friend, this is a quick way to do it.\n\n</string>
-    <string name="how_to_use">How to use it:\n
-        \tadb shell am startservice -n callofdroidy.net.clipboardaccessor/.ServiceClipboardAccessor -e
-        setText \"content you want to put into your android clipboard\" \n\n
-        \tThe service would stop itself as long as it sets content to the phone\'s clipboard, so
-        don\'t worry about an \"keep running service\"</string>
+        \tThis app helps you quickly retrieve plain text from a desktop
+        to the phone\'s clipboard. Assume you find a website and want to paste the link
+        in a phone app to send to your friend, this is a quick way.\n</string>
+    <string name="how_to_use">How to use:\n \tSelect one of the options below and follow the instructions at the bottom</string>
+    <string name="how_to_use_ADB_Mode">Use command line:\n adb shell am startservice -n callofdroidy.net.clipboardaccessor/.ServiceClipboardAccessor -e
+        setText \"any text content\"\n\nThis is recommended when your phone is connected to you computer and you know how to use ADB, put
+        the command in a script to call it is even better.</string>
+    <string name="how_to_use_Internet_Mode">Put this IP:Port in your desktop\'s browser with text as the parameter like this:\n
+        YOUR_IP:8000/?text=HelloWorld</string>
 
-    <string name="connect">Put this IP in your browser with text as the parameter like this:\n
-        YOUR_IP/?text=HelloWorld</string>
 </resources>

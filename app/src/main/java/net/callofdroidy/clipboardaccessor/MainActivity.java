@@ -4,12 +4,12 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.Formatter;
 import android.util.Log;
-import android.webkit.WebHistoryItem;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -36,13 +36,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv_IPInfo;
     private static final int SERVER_PORT = 8000;
     private MiniServerApp myServerForClipboard;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tv_IPInfo = (TextView) findViewById(R.id.tv_IPInfo);
+        tv_IPInfo = (TextView) findViewById(R.id.tv_how_to_use);
+        tv_IPInfo.setText(R.string.how_to_use_ADB_Mode);
         rb_ADB = (RadioButton) findViewById(R.id.rb_adb);
         rb_Internet = (RadioButton) findViewById(R.id.rb_internet);
         rg_transWay = (RadioGroup) findViewById(R.id.rg_transWay);
@@ -51,43 +53,80 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == rb_Internet.getId())
-                    startHTTPServer();
+                    startHTTPServer(mHandler);
+                else {
+                    stopHTTPServer();
+                    tv_IPInfo.setText(R.string.how_to_use_ADB_Mode);
+                }
             }
         });
+
+        mHandler = new Handler(){
+            @Override
+            public void handleMessage(Message msg){
+                switch (msg.what){
+                    case Constants.MESSAGE_RESULT_SUCCESS:
+                        ((ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("label::textForClipboard", msg.getData().getString("text")));
+                        Toast.makeText(getApplicationContext(), "Text has been copied on the clipboard now", Toast.LENGTH_SHORT).show();
+                        break;
+                    case Constants.MESSAGE_RESULT_FAILURE:
+                        Toast.makeText(getApplicationContext(), "Didn't get your text", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        };
     }
 
-    private void startHTTPServer(){
+    private void startHTTPServer(Handler serverHandler){
         try{
-            myServerForClipboard = new MiniServerApp();
-            Log.e("server started", "running on PORT: " + SERVER_PORT);
+            myServerForClipboard = new MiniServerApp(serverHandler);
+            Log.e("server status", "started, running on PORT: " + SERVER_PORT);
             tv_IPInfo.setText("This device's IP: " + Formatter.formatIpAddress(((WifiManager) getSystemService(WIFI_SERVICE)).getConnectionInfo().getIpAddress()) + ":" + SERVER_PORT
-                    + "\n" + getResources().getString(R.string.connect));
+                    + "\n" + getResources().getString(R.string.how_to_use_Internet_Mode));
         }catch (IOException e){
             Log.e("failed to start server", e.toString());
         }
     }
 
+    private void stopHTTPServer(){
+        if(myServerForClipboard != null){
+            myServerForClipboard.stop();
+            Log.e("server status", "stopped");
+        }
+    }
+
     private class MiniServerApp extends NanoHTTPD{
-        public MiniServerApp() throws IOException{
+        private Handler resultHandler;
+        public MiniServerApp(Handler handler) throws IOException{
             super(SERVER_PORT);
+            resultHandler = handler;
             start();
         }
 
         @Override
         public Response serve(IHTTPSession session){
-            String respContent = "did get any text";
+            Log.e("get a req", session.getQueryParameterString());
+            String contentResp = "didn't get any text";
             Map<String, String> params = session.getParms();
-            String recvContent = params.get("text");
-            if(recvContent != null){
-                Log.e("get text", recvContent);
+            String contentRecv = params.get("text");
+            Log.e("content recv", contentRecv + "");
+            Message msg;
+            if(contentRecv != null){
+                Log.e("get text", contentRecv);
                 // need to use a handler
-                //((ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("label::textForClipboard", recvContent));
-                Log.e("set clipboard", recvContent);
-                respContent = "Text has been copied on the Clipboard on your phone";
-                //Toast.makeText(getApplicationContext(), "Text has been copied on Clipboard now", Toast.LENGTH_SHORT).show();
-            }//else
-                //Toast.makeText(getApplicationContext(), "Didn't get your text", Toast.LENGTH_SHORT).show();
-            return new Response(Response.Status.OK, MIME_PLAINTEXT, respContent);
+                msg = resultHandler.obtainMessage(Constants.MESSAGE_RESULT_SUCCESS);
+                Bundle bundle = new Bundle();
+                bundle.putString("text", contentRecv);
+                msg.setData(bundle);
+                Log.e("set clipboard", "success, content: " + contentRecv);
+                contentResp = "Text has been copied on the Clipboard on your phone";
+            }else{
+                msg = resultHandler.obtainMessage(Constants.MESSAGE_RESULT_FAILURE);
+                Log.e("set clipboard", "failed");
+            }
+            mHandler.sendMessage(msg);
+
+            return new Response(Response.Status.OK, MIME_HTML, contentResp);
         }
     }
 
